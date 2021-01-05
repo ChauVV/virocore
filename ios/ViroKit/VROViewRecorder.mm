@@ -77,6 +77,7 @@
     std::pair<int, int> _videoOutputDimensions;
 }
 
+
 @end
 
 @implementation VROViewRecorder
@@ -117,7 +118,7 @@
 - (void)startVideoRecording:(NSString *)fileName
            saveToCameraRoll:(BOOL)saveToCamera
                  errorBlock:(VROViewRecordingErrorBlock)errorBlock {
-    
+    NSLog(@"[Recording] startVideoRecording...");
     if (_isRecording) {
         NSLog(@"[Recording] Video is already being recorded, aborting...");
         if (errorBlock) {
@@ -233,6 +234,7 @@
 
 - (void)stopVideoRecordingWithHandler:(VROViewWriteMediaFinishBlock)completionHandler mergeAudioTrack:(NSURL *)audioPath   {
     _overwrittenAudioFilePath = audioPath;
+    NSLog(@"[Recording] stopVideoRecordingWithHandler...");
     [self stopVideoRecordingWithHandler:completionHandler];
 }
 
@@ -272,6 +274,7 @@
             // we're done with watermarking!
             self->_addWatermark = NO;
             self->_saveGif = NO;
+            
         }];
         
     };
@@ -735,6 +738,13 @@
             // CMTime is set up to be value / timescale = seconds, so since we're in millis, timescape is 1000.
             [_videoWriter endSessionAtSourceTime:CMTimeMake(VROTimeCurrentMillis() - _startTimeMillis, 1000)];
             [_videoWriter finishWritingWithCompletionHandler:^(void) {
+                
+                
+                
+                
+                
+                
+                NSLog(@"[Recording] finish recording0");
                 if (self->_videoWriter.status == AVAssetWriterStatusCompleted && gifSaveSuccess) {
                     if (completionHandler) {
                         completionHandler(YES, self->_tempVideoFilePath, self->_tempGifFilePath, kVROViewErrorNone);
@@ -742,6 +752,10 @@
                 } else {
                     if (gifSaveSuccess) {
                         NSLog(@"[Recording] Failed writing to file: %@", self->_videoWriter.error ? [self->_videoWriter.error localizedDescription] : @"Unknown error");
+                        
+                      
+                        
+                        
                         if (completionHandler) {
                             completionHandler(NO, self->_tempVideoFilePath, self->_tempGifFilePath, kVROViewErrorWriteToFile);
                         }
@@ -752,6 +766,12 @@
                         }
                     }
                 }
+                
+                self->_videoWriter = nil;
+                self->_videoWriterInput = nil;
+                self->_videoWriterPixelBufferAdaptor = nil;
+                NSLog(@"[Recording] finish recording1");
+                
             }];
         } else if (completionHandler) {
             completionHandler(NO, nil, nil, kVROViewErrorAlreadyStopped);
